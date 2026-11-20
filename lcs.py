@@ -1,4 +1,5 @@
 """LCS (subsecuencia comun mas larga) de tres formas. Ejecutar: python lcs.py"""
+import csv
 import random
 import time
 import tracemalloc
@@ -70,7 +71,7 @@ def medir(f, x, y):
         t0 = time.process_time()
         s = f(x, y)
         tiempos.append(time.process_time() - t0)
-        assert es_subsecuencia(s, x) and es_subsecuencia(s, y)
+    assert es_subsecuencia(s, x) and es_subsecuencia(s, y)
     cpu = sorted(tiempos)[1]
     tracemalloc.start()
     f(x, y)
@@ -85,13 +86,15 @@ def cadenas(n):
 
 
 if __name__ == "__main__":
-    lineas = ["| Algoritmo | n | LCS | CPU (s) | Memoria pico (KB) |", "|---|---|---|---|---|"]
+    filas = [["Algoritmo", "n", "LCS", "CPU (s)", "Memoria pico (KB)"]]
     pruebas = [("A recursiva", lcs_recursiva, [8, 10, 12, 14, 16]),
                ("B Hirschberg", lcs_hirschberg, [100, 250, 500, 1000, 2000]),
                ("C tabla", lcs_tabla, [100, 250, 500, 1000, 2000])]
     for nombre, f, tamanos in pruebas:
         for n in tamanos:
             largo, cpu, mem = medir(f, *cadenas(n))
-            lineas.append(f"| {nombre} | {n} | {largo} | {cpu:.3f} | {mem:.0f} |")
-            print(lineas[-1], flush=True)
-    open("resultados.md", "w").write("\n".join(lineas) + "\n")
+            fila = [nombre, n, largo, f"{cpu:.3f}", f"{mem:.0f}"]
+            filas.append(fila)
+            print(f"{nombre:<14} | n={n:<4} | LCS={largo:<4} | CPU={cpu:.3f}s | Mem={mem:.0f} KB", flush=True)
+    with open("resultados.csv", "w", newline="", encoding="utf-8") as f_csv:
+        csv.writer(f_csv).writerows(filas)
